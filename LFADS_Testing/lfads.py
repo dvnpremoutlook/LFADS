@@ -13,10 +13,12 @@ import os
 import sys
 import time
 
-import lfads_tutorial.lfads as lfads
-import lfads_tutorial.plotting as plotting
-import lfads_tutorial.utils as utils
-from lfads_tutorial.optimize import optimize_lfads, get_kl_warmup_fun
+import lfad_params as lfads
+# import lfads_tutorial.plotting as plotting
+import utils as utils
+import distributions as dists
+
+# from lfads_tutorial.optimize import optimize_lfads, get_kl_warmup_fun
 from configparser import ConfigParser
 
 onp_rng = onp.random.RandomState(seed=0) 
@@ -50,35 +52,20 @@ original_images = './Demo_Dataset/Images/'
 for filename in os.scandir(original_images):
     if filename.is_file():
       img = cv2.imread(filename.path)
-      # Z = img.reshape((-1,3))
-      # Z = onp.float32(Z)
-      # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-      # K = 8
-      # ret,label,center=cv2.kmeans(Z,K,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
-      # center = onp.uint8(center)
-      # res = center[label.flatten()]
-      # res2 = res.reshape((img.shape))
-
       img = cv2.resize(img, (50, 50))
       frames.append(img)
+
 print('original_images Done')
+
 # segmentated_images = './Segmentation_dataset/1803290511/matting_00000000/'
 segmentated_images = './Demo_Dataset/Matting/'
 # segmentated_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/matting_main/'
 for filename in os.scandir(segmentated_images):
     if filename.is_file():
       img = cv2.imread(filename.path)
-      # Z = img.reshape((-1,3))
-      # Z = onp.float32(Z)
-      # criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-      # K = 8
-      # ret,label,center=cv2.kmeans(Z,K,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
-      # center = onp.uint8(center)
-      # res = center[label.flatten()]
-      # res2 = res.reshape((img.shape))
-
       img = cv2.resize(img, (50, 50))
       segmented_frames.append(img)
+
 print('segmentated_images Done') 
 data_bxtxn = numpy.stack(frames, axis=0) 
 data_bxtxn = data_bxtxn[:, :, :, 0]
@@ -95,36 +82,6 @@ segmented_train_data, segmented_eval_data = utils.split_data(segmented_data_bxtx
 segmented_eval_data_offset = int(train_fraction * segmented_data_bxtxn.shape[0])
 
 
-my_example_bidx = eval_data_offset + 0
-my_example_hidx = 0
-scale = max_firing_rate * data_dt
-my_signal_spikified = data_bxtxn[my_example_bidx, :, my_example_hidx]
-plt.stem(my_signal_spikified);
-
-nfilt = 3
-my_filtered_spikes = scipy.signal.filtfilt(onp.ones(nfilt)/nfilt, 1, my_signal_spikified)
-# plt.plot(my_signal, 'r');
-plt.plot(my_filtered_spikes);
-plt.title("This looks terrible");
-plt.legend(('True rate', 'Filtered spikes'));
-
-import sklearn
-ncomponents = 50
-full_pca = sklearn.decomposition.PCA(ncomponents)
-full_pca.fit(onp.reshape(data_bxtxn, [-1, data_dim]))
-
-plt.stem(full_pca.explained_variance_)
-plt.title('Those top 2 PCs sure look promising!');
-
-ncomponents = 2
-pca = sklearn.decomposition.PCA(ncomponents)
-pca.fit(onp.reshape(data_bxtxn[0:eval_data_offset,:,:], [-1, data_dim]))
-my_example_pca = pca.transform(data_bxtxn[my_example_bidx,:,:])
-my_example_ipca = pca.inverse_transform(my_example_pca)
-
-plt.plot(my_example_ipca[:,my_example_hidx])
-plt.legend(('True rate', 'PCA smoothed spikes'))
-plt.title('This a bit better.');
 
 data_dim = train_data.shape[2] 
 ntimesteps = train_data.shape[1] 
@@ -132,81 +89,9 @@ ntimesteps = train_data.shape[1]
 config_object = ConfigParser()
 config_object.read("config.ini")
 
-#Get the password
+
 params = config_object["hyperparameters"]
-batch_size = 128
-# batch_size =              int(params["batch_size"])     
-# enc_dim =                 int(params["enc_dim"])         
-# con_dim =                 int(params["con_dim"])        
-# ii_dim =                  int(params["ii_dim"])            
-# gen_dim =                 int(params["gen_dim"])         
-# factors_dim =             float(params["factors_dim"])      
-# var_min =                 float(params["var_min"]) 
-# l2reg =                   float(params["l2reg"])
-# ic_prior_var =            float(params["ic_prior_var"])
-# ar_mean =                 float(params["ar_mean"])  
-# ar_autocorrelation_tau =  float(params["ar_autocorrelation_tau"])
-# ar_noise_variance =       float(params["ar_noise_variance"])
-# num_batches =             int(params["num_batches"])
-# print_every =             int(params["print_every"])
-# step_size =               float(params["step_size"])
-# decay_factor =            float(params["decay_factor"])
-# decay_steps =             int(params["decay_steps"])
-# keep_rate =               float(params["keep_rate"])
-# max_grad_norm =           float(params["max_grad_norm"])
-# kl_warmup_start =         float(params["kl_warmup_start"])
-# kl_warmup_end =           float(params["kl_warmup_end"])
-# kl_min =                  float(params["kl_min"])
-# kl_max =                  float(params["kl_max"])
-# print(enc_dim)      
-# print(con_dim  )    
-# print(ii_dim      )      
-# print(gen_dim      ) 
-# print(factors_dim   )
-
-# print(var_min)
-# print(l2reg)
-# print(ic_prior_var)
-# print(ar_mean)
-# print(ar_autocorrelation_tau)
-# print(ar_noise_variance)
-# print(num_batches)
-# print(print_every)
-# print(step_size)
-# print(decay_factor)
-# print(decay_steps)
-# print(keep_rate)
-# print(max_grad_norm)
-# print(kl_warmup_start)
-# print(kl_warmup_end)
-# print(kl_min)
-# print(kl_max)
-# enc_dim = 256         
-# con_dim = 256        
-# ii_dim = 1            
-# gen_dim = 256         
-# factors_dim = 64      
-# var_min = 0.01 
-# l2reg = 0.0002
-# ic_prior_var = 0.01 
-# ar_mean = 0.0       
-# ar_autocorrelation_tau = 1.0 
-# ar_noise_variance = 0.1 
-# num_batches = 5000         
-# print_every = 50
-
-# step_size = 0.06
-# decay_factor = 0.99999 
-# decay_steps = 1 
-# keep_rate = 0.97 
-# max_grad_norm = 10.0
-# kl_warmup_start = 250.0 
-# kl_warmup_end = 10000.0  
-# kl_min = 0.01
-# # kl_warmup_start = 250.0 
-# # kl_warmup_end = 1000.0
-# # kl_min = 0.01
-# kl_max = 1.0
+# batch_size = 128
 
 #Backup Original Config
 ###############
@@ -256,6 +141,20 @@ lfads_opt_hps = {'num_batches' : num_batches, 'step_size' : step_size,
 
 assert num_batches >= print_every and num_batches % print_every == 0
 
+def get_kl_warmup_fun(lfads_opt_hps):
+
+  kl_warmup_start = lfads_opt_hps['kl_warmup_start']
+  kl_warmup_end = lfads_opt_hps['kl_warmup_end']
+  kl_min = lfads_opt_hps['kl_min']
+  kl_max = lfads_opt_hps['kl_max']
+  def kl_warmup(batch_idx):
+    progress_frac = ((batch_idx - kl_warmup_start) /
+                     (kl_warmup_end - kl_warmup_start))
+    kl_warmup = np.where(batch_idx < kl_warmup_start, kl_min,
+                         (kl_max - kl_min) * progress_frac + kl_min)
+    return np.where(batch_idx > kl_warmup_end, kl_max, kl_warmup)
+  return kl_warmup
+
 # Plot the warmup function and the learning rate decay function.
 plt.figure(figsize=(16,4))
 plt.subplot(121)
@@ -286,8 +185,39 @@ import jax.numpy as np
 from jax import jit, lax, random, vmap
 from jax.experimental import optimizers
 
-import lfads_tutorial.distributions as dists
-import lfads_tutorial.utils as utils
+
+def lfads_params(key, lfads_hps):
+  key, skeys = utils.keygen(key, 10)
+
+  data_dim = lfads_hps['data_dim']
+  ntimesteps = lfads_hps['ntimesteps']
+  enc_dim = lfads_hps['enc_dim']
+  con_dim = lfads_hps['con_dim']
+  ii_dim = lfads_hps['ii_dim']
+  gen_dim = lfads_hps['gen_dim']
+  factors_dim = lfads_hps['factors_dim']
+
+  ic_enc_params = {'fwd_rnn' : gru_params(next(skeys), enc_dim, data_dim),
+                   'bwd_rnn' : gru_params(next(skeys), enc_dim, data_dim)}
+  gen_ic_params = affine_params(next(skeys), 2*gen_dim, 2*enc_dim) #m,v <- bi
+  ic_prior_params = dists.diagonal_gaussian_params(next(skeys), gen_dim, 0.0,
+                                                   lfads_hps['ic_prior_var'])
+  con_params = gru_params(next(skeys), con_dim, 2*enc_dim + factors_dim)
+  con_out_params = affine_params(next(skeys), 2*ii_dim, con_dim) #m,v
+  ii_prior_params = dists.ar1_params(next(skeys), ii_dim,
+                                     lfads_hps['ar_mean'],
+                                     lfads_hps['ar_autocorrelation_tau'],
+                                     lfads_hps['ar_noise_variance'])
+  gen_params = gru_params(next(skeys), gen_dim, ii_dim)
+  factors_params = linear_params(next(skeys), factors_dim, gen_dim)
+  lograte_params = affine_params(next(skeys), data_dim, factors_dim)
+
+  return {'ic_enc' : ic_enc_params,
+          'gen_ic' : gen_ic_params, 'ic_prior' : ic_prior_params,
+          'con' : con_params, 'con_out' : con_out_params,
+          'ii_prior' : ii_prior_params,
+          'gen' : gen_params, 'factors' : factors_params,
+          'logrates' : lograte_params}
 
 
 def sigmoid(x):
@@ -394,38 +324,6 @@ def run_bidirectional_rnn(params, fwd_rnn, bwd_rnn, x_t):
   return full_enc, enc_ends
 
 
-def lfads_params(key, lfads_hps):
-  key, skeys = utils.keygen(key, 10)
-
-  data_dim = lfads_hps['data_dim']
-  ntimesteps = lfads_hps['ntimesteps']
-  enc_dim = lfads_hps['enc_dim']
-  con_dim = lfads_hps['con_dim']
-  ii_dim = lfads_hps['ii_dim']
-  gen_dim = lfads_hps['gen_dim']
-  factors_dim = lfads_hps['factors_dim']
-
-  ic_enc_params = {'fwd_rnn' : gru_params(next(skeys), enc_dim, data_dim),
-                   'bwd_rnn' : gru_params(next(skeys), enc_dim, data_dim)}
-  gen_ic_params = affine_params(next(skeys), 2*gen_dim, 2*enc_dim) #m,v <- bi
-  ic_prior_params = dists.diagonal_gaussian_params(next(skeys), gen_dim, 0.0,
-                                                   lfads_hps['ic_prior_var'])
-  con_params = gru_params(next(skeys), con_dim, 2*enc_dim + factors_dim)
-  con_out_params = affine_params(next(skeys), 2*ii_dim, con_dim) #m,v
-  ii_prior_params = dists.ar1_params(next(skeys), ii_dim,
-                                     lfads_hps['ar_mean'],
-                                     lfads_hps['ar_autocorrelation_tau'],
-                                     lfads_hps['ar_noise_variance'])
-  gen_params = gru_params(next(skeys), gen_dim, ii_dim)
-  factors_params = linear_params(next(skeys), factors_dim, gen_dim)
-  lograte_params = affine_params(next(skeys), data_dim, factors_dim)
-
-  return {'ic_enc' : ic_enc_params,
-          'gen_ic' : gen_ic_params, 'ic_prior' : ic_prior_params,
-          'con' : con_params, 'con_out' : con_out_params,
-          'ii_prior' : ii_prior_params,
-          'gen' : gen_params, 'factors' : factors_params,
-          'logrates' : lograte_params}
 
 
 def lfads_encode(params, lfads_hps, key, x_t, keep_rate):
@@ -599,25 +497,12 @@ import matplotlib.pyplot as plt
 import numpy as onp  # original CPU-backed NumPy
 import sklearn
 
-import lfads_tutorial.lfads as lfads
-import lfads_tutorial.utils as utils
+# import lfad_params.lfads as lfads
+# import utils as utils
 import numpy as num
 import time
 
 
-def get_kl_warmup_fun(lfads_opt_hps):
-
-  kl_warmup_start = lfads_opt_hps['kl_warmup_start']
-  kl_warmup_end = lfads_opt_hps['kl_warmup_end']
-  kl_min = lfads_opt_hps['kl_min']
-  kl_max = lfads_opt_hps['kl_max']
-  def kl_warmup(batch_idx):
-    progress_frac = ((batch_idx - kl_warmup_start) /
-                     (kl_warmup_end - kl_warmup_start))
-    kl_warmup = np.where(batch_idx < kl_warmup_start, kl_min,
-                         (kl_max - kl_min) * progress_frac + kl_min)
-    return np.where(batch_idx > kl_warmup_end, kl_max, kl_warmup)
-  return kl_warmup
 
 
 def optimize_lfads_core(key, batch_idx_start, num_batches,
@@ -768,7 +653,7 @@ from importlib import reload
 import json
 import numpy as znp
 
-reload(plotting)
+# reload(plotting)
 
 znp.save('Small_Dataset_Demo.npy',listofloss)
 # znp.save('trained_params.npy', trained_params)
@@ -866,53 +751,3 @@ import numpy as np
 
 np.save('Small_Dataset_Demo_Weights.npy', trained_params_numpy1)
 
-# def plot_rescale_fun(a): 
-#     fac = max_firing_rate * data_dt
-#     return renormed_fun(a) * fac
-
-
-# bidx = my_example_bidx - eval_data_offset
-# bidx = 0
-
-
-# def posterior_sample_and_average(params, lfads_hps, key, x_txd):
-#   batch_size = lfads_hps['batch_size']
-#   skeys = random.split(key, batch_size)  
-#   x_bxtxd = np.repeat(np.expand_dims(x_txd, axis=0), batch_size, axis=0)
-#   keep_rate = 1.0
-#   lfads_dict = batch_lfads(params, lfads_hps, skeys, x_bxtxd, keep_rate)
-#   return utils.average_lfads_batch(lfads_dict)
-
-
-# nexamples_to_save = 1
-# for eidx in range(nexamples_to_save):
-#     fkey = random.fold_in(key, eidx)
-#     psa_example = eval_data[bidx,:,:].astype(np.float32)
-#     psa_dict = lfads.posterior_sample_and_average(trained_params_numpy1, lfads_hps, fkey, psa_example)
-#     plotting.plot_lfads(psa_example, psa_dict)
-# from importlib import reload
-
-# reload(plotting)
-# #reload(lfads)
-
-# def plot_rescale_fun(a): 
-#     fac = max_firing_rate * data_dt
-#     return renormed_fun(a) * fac
-
-# def posterior_sample_and_average(params, lfads_hps, key, x_txd):
-#   batch_size = lfads_hps['batch_size']
-#   skeys = random.split(key, batch_size)  
-#   x_bxtxd = np.repeat(np.expand_dims(x_txd, axis=0), batch_size, axis=0)
-#   keep_rate = 1.0
-#   lfads_dict = batch_lfads(params, lfads_hps, skeys, x_bxtxd, keep_rate)
-#   return utils.average_lfads_batch(lfads_dict)
-
-# bidx = my_example_bidx - eval_data_offset
-# bidx = 0
-
-# nexamples_to_save = 10
-# for eidx in range(nexamples_to_save):
-#     fkey = random.fold_in(key, eidx)
-#     psa_example = eval_data[bidx,:,:].astype(np.float32)
-#     psa_dict = lfads.posterior_sample_and_average(trained_params_numpy1, lfads_hps, fkey, psa_example)
-#     plotting.plot_lfads(psa_example, psa_dict, None, eval_data_offset+bidx, plot_rescale_fun)

@@ -12,15 +12,12 @@ import os
 import sys
 import time
 
-import lfads_tutorial.lfads as lfads
-import lfads_tutorial.plotting as plotting
-import lfads_tutorial.utils as utils
-from lfads_tutorial.optimize import optimize_lfads, get_kl_warmup_fun
+import lfad_params as lfads
+# import lfads_tutorial.plotting as plotting
+import utils as utils
 
 onp_rng = onp.random.RandomState(seed=0) 
 
-
-# import numpy
 import cv2
 
 lfads_dir = './'  
@@ -40,16 +37,9 @@ max_firing_rate = 80
 train_fraction = 0.9
 renormed_fun = lambda x : (x + 1) / 2.0
 frames = []
-# cap = cv2.VideoCapture("2.mp4")
-# ret = True
-# while ret:
-#     ret, img = cap.read() 
-#     if ret:
-#       img = cv2.resize(img, (50, 50))
-#       frames.append(img)
+
 count = 0
 original_images = './Demo_Dataset/Images/'
-# original_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images/'
 for filename in os.scandir(original_images):
     if filename.is_file():
       if count < 2:
@@ -68,125 +58,6 @@ train_data, eval_data = utils.split_data(data_bxtxn,
                                          train_fraction=train_fraction)
 eval_data_offset = int(train_fraction * data_bxtxn.shape[0])
 
-my_example_bidx = eval_data_offset + 0
-my_example_hidx = 0
-scale = max_firing_rate * data_dt
-my_signal_spikified = data_bxtxn[my_example_bidx, :, my_example_hidx]
-plt.stem(my_signal_spikified);
-
-nfilt = 3
-my_filtered_spikes = scipy.signal.filtfilt(onp.ones(nfilt)/nfilt, 1, my_signal_spikified)
-# plt.plot(my_signal, 'r');
-plt.plot(my_filtered_spikes);
-plt.title("This looks terrible");
-plt.legend(('True rate', 'Filtered spikes'));
-
-import sklearn
-ncomponents = 50
-full_pca = sklearn.decomposition.PCA(ncomponents)
-full_pca.fit(onp.reshape(data_bxtxn, [-1, data_dim]))
-
-plt.stem(full_pca.explained_variance_)
-plt.title('Those top 2 PCs sure look promising!');
-
-ncomponents = 2
-pca = sklearn.decomposition.PCA(ncomponents)
-pca.fit(onp.reshape(data_bxtxn[0:eval_data_offset,:,:], [-1, data_dim]))
-my_example_pca = pca.transform(data_bxtxn[my_example_bidx,:,:])
-my_example_ipca = pca.inverse_transform(my_example_pca)
-
-plt.plot(my_example_ipca[:,my_example_hidx])
-plt.legend(('True rate', 'PCA smoothed spikes'))
-plt.title('This a bit better.');
-
-data_dim = train_data.shape[2] 
-ntimesteps = train_data.shape[1] 
-
-
-# batch_size = 128     
-# enc_dim = 128         
-# con_dim = 128        
-# ii_dim = 1            
-# gen_dim = 128   
-
-# factors_dim = 32      
-# var_min = 0.001 
-# l2reg = 0.00002
-# ic_prior_var = 0.1 
-# ar_mean = 0.0 
-
-# ar_autocorrelation_tau = 1.0 
-# ar_noise_variance = 0.1  
-# num_batches = 200         
-# print_every = 100
-# step_size = 0.05
-
-# decay_factor = 0.9999 
-# decay_steps = 1 
-# keep_rate = 0.98 
-# max_grad_norm = 10.0
-# kl_warmup_start = 500.0 
-
-# kl_warmup_end = 1000.0 
-# kl_min = 0.01
-# kl_min = 0.01
-# kl_max = 1.0
-
-# batch_size = 128  
-# enc_dim = 128         
-# con_dim = 128        
-# ii_dim = 1            
-# gen_dim = 128     
-
-# factors_dim = 32  
-# var_min = 0.001 
-# l2reg = 0.00002
-# ic_prior_var = 0.1 
-# ar_mean = 0.0       
-
-# ar_autocorrelation_tau = 1.0 
-# ar_noise_variance = 0.1  
-# num_batches = 20000         
-# print_every = 100
-# step_size = 0.005
-
-# decay_factor = 0.9999
-# decay_steps = 1 
-# keep_rate = 0.97 
-# max_grad_norm = 10.0
-# kl_warmup_end = 1000.0 
-
-# kl_min = 0.001
-# kl_warmup_start = 500.0 
-# kl_min = 0.01
-# kl_max = 1.0
-
-# batch_size = 128
-# enc_dim = 128         
-# con_dim = 128        
-# ii_dim = 1            
-# gen_dim = 128         
-# factors_dim = 32      
-# var_min = 0.001 
-# l2reg = 0.00002
-# ic_prior_var = 0.01 
-# ar_mean = 0.0       
-# ar_autocorrelation_tau = 1.0 
-# ar_noise_variance = 0.1  
-# num_batches = 5000         
-# print_every = 50
-# step_size = 0.005
-# decay_factor = 0.99999 
-# decay_steps = 1 
-# keep_rate = 0.97 
-# max_grad_norm = 10.0
-# kl_warmup_start = 500.0 
-# kl_warmup_end = 1000.0  
-# kl_min = 0.01
-# # kl_warmup_start = 250.0 
-# # kl_warmup_end = 1000.0
-# # kl_min = 0.01
-# kl_max = 1.0
 
 batch_size = 128
 enc_dim = 128         
@@ -234,22 +105,25 @@ lfads_opt_hps = {'num_batches' : num_batches, 'step_size' : step_size,
 
 assert num_batches >= print_every and num_batches % print_every == 0
 
-# Plot the warmup function and the learning rate decay function.
-plt.figure(figsize=(16,4))
-plt.subplot(121)
-x = onp.arange(0, num_batches, print_every)
-kl_warmup_fun = get_kl_warmup_fun(lfads_opt_hps)
-plt.plot(x, [kl_warmup_fun(i) for i in onp.arange(1,lfads_opt_hps['num_batches'], print_every)]);
-plt.title('KL warmup function')
-plt.xlabel('Training batch');
+def get_kl_warmup_fun(lfads_opt_hps):
 
-plt.subplot(122)
+  kl_warmup_start = lfads_opt_hps['kl_warmup_start']
+  kl_warmup_end = lfads_opt_hps['kl_warmup_end']
+  kl_min = lfads_opt_hps['kl_min']
+  kl_max = lfads_opt_hps['kl_max']
+  def kl_warmup(batch_idx):
+    progress_frac = ((batch_idx - kl_warmup_start) /
+                     (kl_warmup_end - kl_warmup_start))
+    kl_warmup = np.where(batch_idx < kl_warmup_start, kl_min,
+                         (kl_max - kl_min) * progress_frac + kl_min)
+    return np.where(batch_idx > kl_warmup_end, kl_max, kl_warmup)
+  return kl_warmup
+
+kl_warmup_fun = get_kl_warmup_fun(lfads_opt_hps)
 decay_fun = optimizers.exponential_decay(lfads_opt_hps['step_size'],                                                             
                                          lfads_opt_hps['decay_steps'],                                                           
                                          lfads_opt_hps['decay_factor'])                                                          
-plt.plot(x, [decay_fun(i) for i in range(1, lfads_opt_hps['num_batches'], print_every)]);
-plt.title('learning rate function')
-plt.xlabel('Training batch');                                           
+                                      
 
 key = random.PRNGKey(onp.random.randint(0, utils.MAX_SEED_INT))
 init_params = lfads.lfads_params(key, lfads_hps)
@@ -264,8 +138,8 @@ import jax.numpy as np
 from jax import jit, lax, random, vmap
 from jax.experimental import optimizers
 
-import lfads_tutorial.distributions as dists
-import lfads_tutorial.utils as utils
+import distributions as dists
+import utils as utils
 
 
 def sigmoid(x):
@@ -552,25 +426,11 @@ import matplotlib.pyplot as plt
 import numpy as onp  # original CPU-backed NumPy
 import sklearn
 
-import lfads_tutorial.lfads as lfads
-import lfads_tutorial.utils as utils
 # import numpy as num
 import time
 
 
-def get_kl_warmup_fun(lfads_opt_hps):
 
-  kl_warmup_start = lfads_opt_hps['kl_warmup_start']
-  kl_warmup_end = lfads_opt_hps['kl_warmup_end']
-  kl_min = lfads_opt_hps['kl_min']
-  kl_max = lfads_opt_hps['kl_max']
-  def kl_warmup(batch_idx):
-    progress_frac = ((batch_idx - kl_warmup_start) /
-                     (kl_warmup_end - kl_warmup_start))
-    kl_warmup = np.where(batch_idx < kl_warmup_start, kl_min,
-                         (kl_max - kl_min) * progress_frac + kl_min)
-    return np.where(batch_idx > kl_warmup_end, kl_max, kl_warmup)
-  return kl_warmup
 
 
 def optimize_lfads_core(key, batch_idx_start, num_batches,
@@ -703,8 +563,6 @@ def optimize_lfads(key, init_params, lfads_hps, lfads_opt_hps,train_data, eval_d
 
 
 import json
-# import numpy as np
-# import jax.numpy as jnp
 
 trained_params_numpy = onp.load('trained_params_numpy.npy', allow_pickle=True)
 
@@ -786,27 +644,15 @@ init_params = {'ic_enc':ic_enc,
 
 key = random.PRNGKey(onp.random.randint(0, utils.MAX_SEED_INT))
 
-# 
-
-# trained_params1 = np.load('trained_params.npy', allow_pickle=True)
-
-
-# print(type(trained_params1))
-
-# set_diff = np.setdiff1d(trained_params1, trained_params)
 
 from importlib import reload
 
-reload(plotting)
-#reload(lfads)
 
 def plot_rescale_fun(a): 
     fac = max_firing_rate * data_dt
     return renormed_fun(a) * fac
 
 
-bidx = my_example_bidx - eval_data_offset
-bidx = 0
 
 
 def posterior_sample_and_average(params, lfads_hps, key, x_txd):
@@ -840,20 +686,18 @@ def plot_lfads(x_txd, avg_lfads_dict):
   img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
   img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
   img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-  # cv2.imwrite('TTK.png',img)
   return img
 
 total_save = 0
 skip = 0
 
-
+import lfad_params as lfads
 for filename in os.scandir(original_images):
   if filename.is_file():
     skip += 1
     if total_save < 2 and skip % 5 == 0:
       total_save += 1
       fkey = random.fold_in(key, total_save)
-      #psa_example = eval_data[bidx,:,:].astype(np.float32)
       img = cv2.imread(original_images+filename.name)
       psa_example = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
       psa_example = cv2.resize(psa_example, (50, 50))
