@@ -5,9 +5,9 @@ import numpy as np
 directory = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/TTK_data/TikTok_dataset2/TikTok_dataset/'
 write_directory = './LFADS_dataset/quant_imgs/'
 
-images = '/home/013057356/LFADS/LFADS/LFADS_Testing/Small_Demo_Dataset/Images/'
-binarys = '/home/013057356/LFADS/LFADS/LFADS_Testing/Small_Demo_Dataset/Matting/'
-matting = '/home/013057356/LFADS/LFADS/LFADS_Testing/Small_Demo_Dataset/2ndMatt/'
+images = '/home/013057356/LFADS/LFADS/LFADS_Testing/Demo_Dataset/Images/'
+binarys = '/home/013057356/LFADS/LFADS/LFADS_Testing/Demo_Dataset/Binary/'
+matting = '/home/013057356/LFADS/LFADS/LFADS_Testing/Demo_Dataset/Matting/'
 proper_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images/'
 proper_images_matting = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images_matting/'
 # iterate over files in

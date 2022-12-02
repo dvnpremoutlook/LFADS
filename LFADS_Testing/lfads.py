@@ -45,7 +45,7 @@ segmented_frames = []
 
 
 # original_images = './Segmentation_dataset/1803290511/clip_00000000/'
-original_images = './Small_Demo_Dataset/Images/'
+original_images = './Demo_Dataset/Images/'
 # original_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images/'
 for filename in os.scandir(original_images):
     if filename.is_file():
@@ -63,7 +63,7 @@ for filename in os.scandir(original_images):
       frames.append(img)
 print('original_images Done')
 # segmentated_images = './Segmentation_dataset/1803290511/matting_00000000/'
-segmentated_images = './Small_Demo_Dataset/2ndmatting/'
+segmentated_images = './Demo_Dataset/Matting/'
 # segmentated_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/matting_main/'
 for filename in os.scandir(segmentated_images):
     if filename.is_file():
@@ -225,7 +225,7 @@ ar_noise_variance = 0.1
 num_batches = 2000         
 print_every = 100
 step_size = 0.05
-decay_factor = 0.99
+decay_factor = 0.9999
 decay_steps = 1 
 keep_rate = 0.97 
 max_grad_norm = 10.0
@@ -890,29 +890,29 @@ np.save('Small_Dataset_Demo_Weights.npy', trained_params_numpy1)
 #     psa_example = eval_data[bidx,:,:].astype(np.float32)
 #     psa_dict = lfads.posterior_sample_and_average(trained_params_numpy1, lfads_hps, fkey, psa_example)
 #     plotting.plot_lfads(psa_example, psa_dict)
-from importlib import reload
+# from importlib import reload
 
-reload(plotting)
-#reload(lfads)
+# reload(plotting)
+# #reload(lfads)
 
-def plot_rescale_fun(a): 
-    fac = max_firing_rate * data_dt
-    return renormed_fun(a) * fac
+# def plot_rescale_fun(a): 
+#     fac = max_firing_rate * data_dt
+#     return renormed_fun(a) * fac
 
-def posterior_sample_and_average(params, lfads_hps, key, x_txd):
-  batch_size = lfads_hps['batch_size']
-  skeys = random.split(key, batch_size)  
-  x_bxtxd = np.repeat(np.expand_dims(x_txd, axis=0), batch_size, axis=0)
-  keep_rate = 1.0
-  lfads_dict = batch_lfads(params, lfads_hps, skeys, x_bxtxd, keep_rate)
-  return utils.average_lfads_batch(lfads_dict)
+# def posterior_sample_and_average(params, lfads_hps, key, x_txd):
+#   batch_size = lfads_hps['batch_size']
+#   skeys = random.split(key, batch_size)  
+#   x_bxtxd = np.repeat(np.expand_dims(x_txd, axis=0), batch_size, axis=0)
+#   keep_rate = 1.0
+#   lfads_dict = batch_lfads(params, lfads_hps, skeys, x_bxtxd, keep_rate)
+#   return utils.average_lfads_batch(lfads_dict)
 
-bidx = my_example_bidx - eval_data_offset
-bidx = 0
+# bidx = my_example_bidx - eval_data_offset
+# bidx = 0
 
-nexamples_to_save = 10
-for eidx in range(nexamples_to_save):
-    fkey = random.fold_in(key, eidx)
-    psa_example = eval_data[bidx,:,:].astype(np.float32)
-    psa_dict = lfads.posterior_sample_and_average(trained_params_numpy1, lfads_hps, fkey, psa_example)
-    plotting.plot_lfads(psa_example, psa_dict, None, eval_data_offset+bidx, plot_rescale_fun)
+# nexamples_to_save = 10
+# for eidx in range(nexamples_to_save):
+#     fkey = random.fold_in(key, eidx)
+#     psa_example = eval_data[bidx,:,:].astype(np.float32)
+#     psa_dict = lfads.posterior_sample_and_average(trained_params_numpy1, lfads_hps, fkey, psa_example)
+#     plotting.plot_lfads(psa_example, psa_dict, None, eval_data_offset+bidx, plot_rescale_fun)

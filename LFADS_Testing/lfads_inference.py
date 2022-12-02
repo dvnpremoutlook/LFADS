@@ -48,7 +48,7 @@ frames = []
 #       img = cv2.resize(img, (50, 50))
 #       frames.append(img)
 count = 0
-original_images = './LFADS_dataset/matting/'
+original_images = './Demo_Dataset/Images/'
 # original_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images/'
 for filename in os.scandir(original_images):
     if filename.is_file():
@@ -161,6 +161,33 @@ ntimesteps = train_data.shape[1]
 # kl_min = 0.01
 # kl_max = 1.0
 
+# batch_size = 128
+# enc_dim = 128         
+# con_dim = 128        
+# ii_dim = 1            
+# gen_dim = 128         
+# factors_dim = 32      
+# var_min = 0.001 
+# l2reg = 0.00002
+# ic_prior_var = 0.01 
+# ar_mean = 0.0       
+# ar_autocorrelation_tau = 1.0 
+# ar_noise_variance = 0.1  
+# num_batches = 5000         
+# print_every = 50
+# step_size = 0.005
+# decay_factor = 0.99999 
+# decay_steps = 1 
+# keep_rate = 0.97 
+# max_grad_norm = 10.0
+# kl_warmup_start = 500.0 
+# kl_warmup_end = 1000.0  
+# kl_min = 0.01
+# # kl_warmup_start = 250.0 
+# # kl_warmup_end = 1000.0
+# # kl_min = 0.01
+# kl_max = 1.0
+
 batch_size = 128
 enc_dim = 128         
 con_dim = 128        
@@ -169,25 +196,22 @@ gen_dim = 128
 factors_dim = 32      
 var_min = 0.001 
 l2reg = 0.00002
-ic_prior_var = 0.01 
+ic_prior_var = 0.1 
 ar_mean = 0.0       
 ar_autocorrelation_tau = 1.0 
 ar_noise_variance = 0.1  
-num_batches = 5000         
-print_every = 50
-step_size = 0.005
-decay_factor = 0.99999 
+num_batches = 2000         
+print_every = 100
+step_size = 0.05
+decay_factor = 0.9999
 decay_steps = 1 
 keep_rate = 0.97 
 max_grad_norm = 10.0
 kl_warmup_start = 500.0 
 kl_warmup_end = 1000.0  
 kl_min = 0.01
-# kl_warmup_start = 250.0 
-# kl_warmup_end = 1000.0
-# kl_min = 0.01
 kl_max = 1.0
-
+##############
 
 
 lfads_hps = {'data_dim' : data_dim, 'ntimesteps' : ntimesteps,
@@ -591,7 +615,7 @@ def optimize_lfads_core(key, batch_idx_start, num_batches,
 
 
 optimize_lfads_core_jit = jit(optimize_lfads_core, static_argnums=(2,3,4,6,7))
-
+original_images = './Demo_Dataset/Matting/'
 def optimize_lfads(key, init_params, lfads_hps, lfads_opt_hps,train_data, eval_data):
 
   all_tlosses = []
@@ -822,11 +846,11 @@ def plot_lfads(x_txd, avg_lfads_dict):
 total_save = 0
 skip = 0
 
-original_images = './LFADS_dataset/matting/'
+
 for filename in os.scandir(original_images):
   if filename.is_file():
     skip += 1
-    if total_save < 20 and skip % 200 == 0:
+    if total_save < 2 and skip % 5 == 0:
       total_save += 1
       fkey = random.fold_in(key, total_save)
       #psa_example = eval_data[bidx,:,:].astype(np.float32)
@@ -835,7 +859,5 @@ for filename in os.scandir(original_images):
       psa_example = cv2.resize(psa_example, (50, 50))
       print(filename.name,np.shape(psa_example),total_save)
       psa_dict = lfads.posterior_sample_and_average(init_params, lfads_hps, fkey, psa_example)
-      cv2.imwrite('/home/013057356/LFADS/LFADS_Testing/results1/images/'+filename.name,img)
-      cv2.imwrite('/home/013057356/LFADS/LFADS_Testing/results1/resized/'+filename.name,psa_example)
-      cv2.imwrite('/home/013057356/LFADS/LFADS_Testing/results1/infered/'+filename.name,plot_lfads(psa_example, psa_dict))
+      cv2.imwrite('./results/infered/'+filename.name,plot_lfads(psa_example, psa_dict))
 
