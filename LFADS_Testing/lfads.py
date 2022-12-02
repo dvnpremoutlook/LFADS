@@ -63,7 +63,7 @@ for filename in os.scandir(original_images):
       frames.append(img)
 print('original_images Done')
 # segmentated_images = './Segmentation_dataset/1803290511/matting_00000000/'
-segmentated_images = './Small_Demo_Dataset/Matting/'
+segmentated_images = './Small_Demo_Dataset/2ndmatting/'
 # segmentated_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/matting_main/'
 for filename in os.scandir(segmentated_images):
     if filename.is_file():
@@ -222,8 +222,8 @@ ic_prior_var = 0.1
 ar_mean = 0.0       
 ar_autocorrelation_tau = 1.0 
 ar_noise_variance = 0.1  
-num_batches = 200         
-print_every = 5
+num_batches = 2000         
+print_every = 100
 step_size = 0.05
 decay_factor = 0.99
 decay_steps = 1 
