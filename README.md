@@ -1,16 +1,16 @@
 # LFADS
-
-# Install Conda 
+""" Warning : THIS CODE WILL RUN ONLY ON A LINUX SYSTEM AS THIS CODE USES JAX """ 
+## Install Conda 
 ```
 sh Miniconda3-py39_4.12.0-Linux-x86_64.sh
 ```
-# Create Conda Enviorment 
+## Create Conda Enviorment 
 ```
 conda create --name LFADS
 conda activate LFADS
 ```
 
-# Install Modules 
+## Install Modules 
 
 ```
 conda install numpy 
@@ -24,11 +24,11 @@ pip install opencv-python
 ## Follow Demo Video to change Paramter in all Files
 ## If you want to use the default data set then run the following 
 
-# Training
+### Training
 ```
 python lfads.py
 ```
-# Inference 
+### Inference 
 ```
 python lfads_inference.py
 ```
