@@ -1,5 +1,5 @@
 # LFADS
-#""" Warning : THIS CODE WILL RUN ONLY ON A LINUX SYSTEM AS THIS CODE USES JAX """ 
+# """ Warning : THIS CODE WILL RUN ONLY ON A LINUX SYSTEM AS THIS CODE USES JAX """ 
 ## Install Conda 
 ```
 sh Miniconda3-py39_4.12.0-Linux-x86_64.sh
