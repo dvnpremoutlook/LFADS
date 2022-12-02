@@ -1,5 +1,9 @@
 # LFADS
 # """ Warning : THIS CODE WILL RUN ONLY ON A LINUX SYSTEM AS THIS CODE USES JAX """ 
+## Paper
+```
+https://www.biorxiv.org/content/10.1101/152884v1.full.pdf
+```
 ## Install Conda 
 ```
 sh Miniconda3-py39_4.12.0-Linux-x86_64.sh
