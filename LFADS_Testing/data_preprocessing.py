@@ -5,9 +5,9 @@ import numpy as np
 directory = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/TTK_data/TikTok_dataset2/TikTok_dataset/'
 write_directory = './LFADS_dataset/quant_imgs/'
 
-images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/images/'
-binarys = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/binary/'
-matting = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/matting_main/'
+images = '/home/013057356/LFADS/LFADS/LFADS_Testing/Small_Demo_Dataset/Images/'
+binarys = '/home/013057356/LFADS/LFADS/LFADS_Testing/Small_Demo_Dataset/Matting/'
+matting = '/home/013057356/LFADS/LFADS/LFADS_Testing/Small_Demo_Dataset/2ndmatting/'
 proper_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images/'
 proper_images_matting = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images_matting/'
 # iterate over files in
@@ -75,4 +75,4 @@ def convert(binary_dir,images_dir,matting_dir):
 						cv.imwrite(matting_dir+filename.name,matting)
 
 
-convert(proper_images_matting,proper_images,matting)
+convert(binarys,images,matting)

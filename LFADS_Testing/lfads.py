@@ -45,7 +45,7 @@ segmented_frames = []
 
 
 # original_images = './Segmentation_dataset/1803290511/clip_00000000/'
-original_images = './LFADS_dataset/images/'
+original_images = './Small_Demo_Dataset/Images/'
 # original_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/proper_images/'
 for filename in os.scandir(original_images):
     if filename.is_file():
@@ -63,7 +63,7 @@ for filename in os.scandir(original_images):
       frames.append(img)
 print('original_images Done')
 # segmentated_images = './Segmentation_dataset/1803290511/matting_00000000/'
-segmentated_images = './LFADS_dataset/matting/'
+segmentated_images = './Small_Demo_Dataset/Matting/'
 # segmentated_images = '/home/013057356/LFADS/LFADS_Testing/LFADS_dataset/LFADS_Full_Human_Dataset/matting_main/'
 for filename in os.scandir(segmentated_images):
     if filename.is_file():
@@ -770,7 +770,7 @@ import numpy as znp
 
 reload(plotting)
 
-znp.save('200_1listofloss1.npy',listofloss)
+znp.save('Small_Dataset_Demo.npy',listofloss)
 # znp.save('trained_params.npy', trained_params)
 
 import numpy as onp
@@ -864,7 +864,7 @@ trained_params_numpy1=[
 import json
 import numpy as np
 
-np.save('TikTok_weights_128_5000.npy', trained_params_numpy1)
+np.save('Small_Dataset_Demo_Weights.npy', trained_params_numpy1)
 
 # def plot_rescale_fun(a): 
 #     fac = max_firing_rate * data_dt
