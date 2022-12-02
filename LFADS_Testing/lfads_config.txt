@@ -1,0 +1,3 @@
+path1 = "D:\test1\first"
+path2 = "D:\test2\second"
+path3 = "D:\test2\third"
