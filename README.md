@@ -23,6 +23,7 @@ pip install jax[cpu]==0.2.27
 pip install h5py
 pip install -U scikit-learn
 pip install opencv-python
+pip install matplotlib
 ```
 
 ## Follow Demo Video to change Paramter in all Files
